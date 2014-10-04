@@ -1,0 +1,30 @@
+{
+"name": "steam-poker",
+"version": "0.0.1",
+"description": "Plays card games over steam group chats.",
+"main": "index.js",
+"scripts": {
+"start": "node index.js"
+},
+"dependencies": {
+"lodash": "*",
+"steam": "<=0.6.7"
+"steam-tradeoffers":"*"
+},
+"engines": {
+"node": "0.10.x"
+},
+"repository": {
+"type": "git",
+"url": "https://github.com/spencerflem/Node-Steam-Poker"
+},
+"keywords": [
+"node",
+"steam",
+"poker",
+"game",
+"card",
+"dealer"
+],
+"license": "MPL-2.0"
+}

@@ -1,7 +1,6 @@
 ﻿var fs = require('fs')
 var Steam = require('steam')
 var _ = require('lodash')
-var tradeoffers = require('steam-tradeoffers')
 
 var startedRooms = []
 
@@ -12,7 +11,7 @@ if (fs.existsSync('servers')) {
 var bot = new Steam.SteamClient()
 
 bot.logOn({
-	accountName: 'SpencerFlem',
+	accountName: 'SpencerFlem', // MUST REMOVE THIS LATER! NOONE MAY SEE!
 	password: 'Ap3rtur3',
 	shaSentryfile: fs.readFileSync('sentryfile')
 })
@@ -29,7 +28,8 @@ bot.on('servers', function(servers) {
 	fs.writeFile('servers', JSON.stringify(servers))
 })
 
-bot.on('chatEnter', function(room) {
+bot.on('chatEnter', function(room, response) {
+	console.log('entered')
 	startupRoom(room)
 })
 
@@ -54,7 +54,6 @@ function setupData(room) { //if data didn't change, not necessary?
 	allData[room].thisChatRoom = bot.chatRooms[room]
 	allData[room].friends = 'NONEXISTANT' //Make this not so!
 	allData[room].stored = {}
-
 }
 
 var players = []
@@ -64,6 +63,7 @@ function startupRoom(room) { // If went offline and rejoined done restart room?
 	setupData(room)
 	progress = room103582791434524271.startup(allData[room])
 	applyProgress(progress, room)
+	console.log('STARTY-STARTY')
 }
 
 function applyProgress(progress, room) {
