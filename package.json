@@ -2,9 +2,9 @@
 "name": "steam-poker",
 "version": "0.0.1",
 "description": "Plays card games over steam group chats.",
-"main": "index.js",
+"main": "steamier.js",
 "scripts": {
-"start": "node index.js"
+"start": "node steamier.js"
 },
 "dependencies": {
 "lodash": "*",
