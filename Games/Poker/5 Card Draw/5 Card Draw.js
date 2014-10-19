@@ -1,17 +1,21 @@
 /// Invigorating Imports
 
 var _ = require('lodash'); //Not necessary? //so?
+var fs = require('fs')
 
 /// Sumptuous Variables
 
 var data = {};
 var roomData = {};
 var playerData = {};
+playerData.hi = 'HI';
 
 /// Delectable Settings
 
 
 /// Useful Functions
+
+/*
 
 var symbolNumbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 var symbolSuits = ['♣', '♦', '♥', '♠'];
@@ -28,17 +32,21 @@ function setupLookup(numbers, suits) {
 	return tempLookup;
 }
 
-var symbolLookup = setupLookup(symbolNumbers,symbolSuits);
-var wordLookup = setupLookup(wordNumbers,wordSuits);
+*/
 
-function extractNumbers(message) { //run regex and check for each middle part to get in order?
-	var regex = /\D+/;
+var symbolLookup = [["2","♣"],["2","♦"],["2","♥"],["2","♠"],["3","♣"],["3","♦"],["3","♥"],["3","♠"],["4","♣"],["4","♦"],["4","♥"],["4","♠"],["5","♣"],["5","♦"],["5","♥"],["5","♠"],["6","♣"],["6","♦"],["6","♥"],["6","♠"],["7","♣"],["7","♦"],["7","♥"],["7","♠"],["8","♣"],["8","♦"],["8","♥"],["8","♠"],["9","♣"],["9","♦"],["9","♥"],["9","♠"],["10","♣"],["10","♦"],["10","♥"],["10","♠"],["J","♣"],["J","♦"],["J","♥"],["J","♠"],["Q","♣"],["Q","♦"],["Q","♥"],["Q","♠"],["K","♣"],["K","♦"],["K","♥"],["K","♠"],["A","♣"],["A","♦"],["A","♥"],["A","♠"]]
+var wordLookup = [["Two","Clubs"],["Two","Diamonds"],["Two","Hearts"],["Two","Spades"],["Three","Clubs"],["Three","Diamonds"],["Three","Hearts"],["Three","Spades"],["Four","Clubs"],["Four","Diamonds"],["Four","Hearts"],["Four","Spades"],["Five","Clubs"],["Five","Diamonds"],["Five","Hearts"],["Five","Spades"],["Six","Clubs"],["Six","Diamonds"],["Six","Hearts"],["Six","Spades"],["Seven","Clubs"],["Seven","Diamonds"],["Seven","Hearts"],["Seven","Spades"],["Eight","Clubs"],["Eight","Diamonds"],["Eight","Hearts"],["Eight","Spades"],["Nine","Clubs"],["Nine","Diamonds"],["Nine","Hearts"],["Nine","Spades"],["Ten","Clubs"],["Ten","Diamonds"],["Ten","Hearts"],["Ten","Spades"],["Jack","Clubs"],["Jack","Diamonds"],["Jack","Hearts"],["Jack","Spades"],["Queen","Clubs"],["Queen","Diamonds"],["Queen","Hearts"],["Queen","Spades"],["King","Clubs"],["King","Diamonds"],["King","Hearts"],["King","Spades"],["Ace","Clubs"],["Ace","Diamonds"],["Ace","Hearts"],["Ace","Spades"]]
+
+function extractNumbers(message) {
+	var numbersRegex = /(-?\.?\d+\.?\d*)/g;
+	var commasRegex = /[,]/g; //_.pull works too
 	var numbers = [];
-	numbers = message.split(regex);
-	_.pull(numbers, ''); // !!! Commas ex: 1,984 would be 1 & 984 not: 1984 :(  Also 1.5 or 1 and 1/2 would be weird
+	noCommasMessage = message.replace(commasRegex,'')
+	numbers = noCommasMessage.match(numbersRegex);
 	for (var h = 0; h < numbers.length; h++) {
 		numbers[h] = parseInt(numbers[h]);
 	}
+	console.log(numbers)
 	
 	// Copypasta from old bot incoming
 	
@@ -130,6 +138,7 @@ function formatOptionsList(player) {
 function formatShortHand(player) {
 	var shortHand = '';
 	for (var i = 0; i < playerData[player].hand.length; i++); {
+		# console.log('090909090-' + playerData[player].hand[i]);
 		shortHand += symbolLookup[ playerData[player].hand[i] ][0];
 		shortHand += symbolLookup[ playerData[player].hand[i] ][1];
 		if (i !== playerData[player].hand.length - 1) {
@@ -439,7 +448,7 @@ function fold() {
 /// Interesting Exports (allowed to affect the real messages)
 
 exports.startup = function(givenData) {
-	
+
 	data = givenData;
 	players = Object.keys(data.thisChatRoom); //shuffle?
 	_.pull(players,data.steamID);
@@ -484,9 +493,7 @@ exports.startup = function(givenData) {
 	/// OBJECT SETUP ENDS HERE
 	
 	roomData.makeDeck();
-	setupLookup(symbolLookup,symbolNumbers,symbolSuits);
-	setupLookup(wordLookup,wordNumbers,wordSuits);
-	
+
 	var messages = [];
 	
 	for(var i=0; i < players.length; i++) {
@@ -497,6 +504,8 @@ exports.startup = function(givenData) {
 	
 	data.stored.roomData = roomData;
 	data.stored.playerData = playerData;
+	
+	console.log('00000-' + JSON.stringify(playerData, null, 4))
 	
 	var commands = {};
 	console.log('nn' + JSON.stringify(messages, null, 4));
