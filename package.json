@@ -10,6 +10,7 @@
 "lodash": "*",
 "steam": "<=0.6.7",
 "steam-tradeoffers":"*"
+"express": "~4.9.x"
 },
 "engines": {
 "node": "0.10.x"
