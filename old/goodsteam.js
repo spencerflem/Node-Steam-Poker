@@ -1,5 +1,5 @@
-var username = 'spencerflem';
-var password = 'Ap3rtur3';
+var username = ';
+var password = ';
 var SteamGuard = require('fs').existsSync('sentryfile') ? require('fs').readFileSync('sentryfile')
     : ''; 
 var fs = require('fs');
@@ -10,7 +10,7 @@ var SteamTradeOffers = require('Steam-tradeoffers');
 var bot = new Steam.SteamClient();
 var offers = new SteamTradeOffers();
 
-var mainChat = '103582791434524271';
+var mainChat = '';
 
 var symbolNumbers = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
 var symbolSuits = ['♣', '♦', '♥', '♠'];

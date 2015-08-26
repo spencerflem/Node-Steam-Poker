@@ -121,14 +121,14 @@ if (fs.existsSync('servers')) {
 var bot = new Steam.SteamClient();
 
 bot.logOn({
-	accountName: 'SpencerFlem',
-	password: 'Ap3rtur3',
+	accountName: '',
+	password: '',
 	shaSentryfile: fs.readFileSync('sentryfile')
 });
 
 bot.on('loggedOn', function() {
-	var mainChat = '103582791434524271';
-//  var mainChat = '76561197992656741';
+	var mainChat = '';
+//  var mainChat = '';
 	console.log('Logged in!');
 	bot.setPersonaName('Dealer');
 	bot.setPersonaState(Steam.EPersonaState.Online); // to display your bot's status as "Online"

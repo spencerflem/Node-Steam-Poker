@@ -116,7 +116,7 @@ function formatOptionsList(player) {
 	var noOptionMessage = 'No';
 	var emptyOptionsListMessage = 'AWAIT YOUR TURN';
 	var emptyOptionsListMessage = 'BE PATIENT';
-
+//fix awaitturnmesagaeww
 	optionsList = [];
 	if (playerData[player].mustSpecifyBetAmount === true) {optionsList.push(mustSpecifyBetAmountMessage); }
 	else if (playerData[player].mustSpecifyRaiseAmount === true) { optionsList.push(mustSpecifyRaiseAmountMessage); }
@@ -138,7 +138,8 @@ function formatOptionsList(player) {
 function formatShortHand(player) {
 	var shortHand = '';
 	for (var i = 0; i < playerData[player].hand.length; i++); {
-		# console.log('090909090-' + playerData[player].hand[i]);
+		# console.log('090909090-' + playerData[player].hand[i]); //why this?
+
 		shortHand += symbolLookup[ playerData[player].hand[i] ][0];
 		shortHand += symbolLookup[ playerData[player].hand[i] ][1];
 		if (i !== playerData[player].hand.length - 1) {

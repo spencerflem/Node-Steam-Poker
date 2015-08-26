@@ -23,13 +23,13 @@ if (fs.existsSync('servers')) {
 var bot = new Steam.SteamClient()
 
 bot.logOn({
-	accountName: 'SpencerFlem', // MUST REMOVE THIS LATER! NOONE MAY SEE!
-	password: 'Ap3rtur3',
+	accountName: '', // MUST REMOVE THIS LATER! NOONE MAY SEE!
+	password: '',
 	shaSentryfile: fs.readFileSync('sentryfile')
 })
 
 bot.on('loggedOn', function() {
-	var mainChat = '103582791434524271'
+	var mainChat = '';
 	console.log('Logged in!')
 	bot.setPersonaName('Dealer')
 	bot.setPersonaState(Steam.EPersonaState.Online); // to display your bot's status as "Online"
@@ -50,7 +50,7 @@ bot.on('chatEnter', function(room, response) {
 var allData = {}
 
 gameLookup = {
-	'103582791434524271':'./Games/Poker/5 Card Draw/5 Card Draw.js' // This to the variable to use functions from?
+	'':'./Games/Poker/5 Card Draw/5 Card Draw.js' // This to the variable to use functions from?
 }
 var room103582791434524271 = require('./Games/Poker/5 Card Draw/5 Card Draw.js') // Object / array instead of variable? idk if possible 
 // OR: require all by default and use its name as variable

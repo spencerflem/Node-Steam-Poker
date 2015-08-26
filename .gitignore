@@ -1,6 +1,9 @@
 .node-gyp
 node_modules
-#sentryfile
-#servers
+**/sentryfile
+**/servers
 node-steam-poker-bot-master.zip
+/node_modules
+/secrets/*
+!/secrets/README.txt
 Node-Steam-Poker-original.zip
