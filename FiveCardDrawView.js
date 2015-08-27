@@ -1,6 +1,6 @@
 ﻿function updateVeiw(Player) { //unfinshed //Also, add if increase
 
-	var optionsList = formatOptionsList(player);
+	var optionsList = formatOptionsList(player); //Show side pots as Pot:300(20) <- side pots added together
 	var shortHand = formatShortHand(player);
 	var shortOptions = formatShortOptions(optionsList);
 	var longHand = formatLongHand(player);

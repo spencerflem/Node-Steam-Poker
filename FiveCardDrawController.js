@@ -1,4 +1,4 @@
-model = require('FiveCardDrawModel');
+model = require('FiveCardDrawModel.js');
 
 function extractNumbers(message) {
 	var numbersRegex = /(-?\.?\d+\.?\d*)/g;
