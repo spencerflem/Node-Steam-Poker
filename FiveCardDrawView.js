@@ -1,58 +1,64 @@
-﻿function updateVeiw(Player) { //unfinshed //Also, add if increase
+﻿module.exports = View; //correct syntax?
 
-	var optionsList = formatOptionsList(player); //Show side pots as Pot:300(20) <- side pots added together
-	var shortHand = formatShortHand(player);
+//TODO SIDEPOT
+//TODO VALIDATION
+
+function View() {
+}
+
+View.prototype.updateView = function(Player) { //unfinshed //Also, add if increase
+
+	var optionsList = formatOptionsList(Player); //Show side pots as Pot:300(20) <- side pots added together
+	var shortHand = formatShortHand(Player);
 	var shortOptions = formatShortOptions(optionsList);
-	var longHand = formatLongHand(player);
-	var statusBar = formatStatusBar(player);
+	var longHand = formatLongHand(Player);
+	var statusBar = formatStatusBar(Player);
 	var longOptions = formatLongOptions(optionsList);
 	
 	var specialMessage = '.'; //do something with this?
 	
 	message = shortHand + '\n' + shortOptions + '\n' + '———————————————————————————' + '\n' + '.' + '\n' + longHand + '\n' + '.' + '\n' + 
 	'———————————————————————————' + '\n' + statusBar + '\n' + '———————————————————————————' + '\n' + specialMessage + '\n' + longOptions;
+	
+	console.log('////////////////////////////////////////////\n--------------------------------------------')
+	console.log(message);
+	console.log('--------------------------------------------\n////////////////////////////////////////////')
+	
 	return message;
 }
 
-function formatOptionsList(player) {
+function formatOptionsList(Player) {
 
-	var mustSpecifyBetAmountMessage = 'SAY HOW MUCH YOU BET';
-	var mustSpecifyRaiseAmountMessage = 'SAY HOW MUCH YOU RAISE';
-	var betOptionMessage = 'Bet';
+	var betOptionMessage = 'Bet (#)';
 	var checkOptionMessage = 'Check';
 	var allInOptionMessage = 'All In (' + Player.wallet + ')';
 	var raiseOptionMessage = 'Raise (#)';
-	var callOptionMessage = 'Call (' + (roomData.currentBet - playerData[player].amountBet) + ')';
+	var callOptionMessage = 'Call (' + (Player.game.getHighestBet() - Player.amountBet) + ')';
 	var foldOptionMessage = 'Fold';
-	var yesOptionMessage = 'Yes';
-	var noOptionMessage = 'No';
+	//var yesOptionMessage = 'Yes';
+	//var noOptionMessage = 'No';
 	var awaitTurnMessage = 'AWAIT YOUR TURN';
-	var emptyOptionsListMessage = 'BE PATIENT';
 
 	optionsList = [];
-	if (playerData[player].mustSpecifyBetAmount === true) {optionsList.push(mustSpecifyBetAmountMessage); }
-	else if (playerData[player].mustSpecifyRaiseAmount === true) { optionsList.push(mustSpecifyRaiseAmountMessage); }
-	else if (playerData[player].mustAwaitTurn === true) { optionsList.push(awaitTurnMessage); }
-	else if (optionsList == []) { optionsList.push(emptyOptionsListMessage); } //not else ifs?
-	
+	if (Player.isCurrentPlayer() === false) { optionsList.push(awaitTurnMessage); }
 	else {
-		if (playerData[player].canBet === true) { optionsList.push(betOptionMessage); }
-		if (playerData[player].canCheck === true) { optionsList.push(checkOptionMessage); }
-		if (playerData[player].canAllIn === true) { optionsList.push(allInOptionMessage); }
-		if (playerData[player].canRaise === true) { optionsList.push(raiseOptionMessage); }
-		if (playerData[player].canCall === true) { optionsList.push(callOptionMessage); }
-		if (playerData[player].canFold === true) { optionsList.push(foldOptionMessage); }
-		if (playerData[player].canShow === true) { optionsList.push(yesOptionMessage); optionsList.push(noOptionMessage); }
+		if (Player.canAllin() === true) { optionsList.push(allInOptionMessage); }
+		if (Player.canBet() === true) { optionsList.push(betOptionMessage); }
+		if (Player.canCheck() === true) { optionsList.push(checkOptionMessage); }
+		if (Player.canRaise() === true) { optionsList.push(raiseOptionMessage); }
+		if (Player.canCall() === true) { optionsList.push(callOptionMessage); }
+		if (Player.canFold() === true) { optionsList.push(foldOptionMessage); }
+		//if (playerData[player].canShow === true) { optionsList.push(yesOptionMessage); optionsList.push(noOptionMessage); }
 	}
 	return optionsList; //returns a list of available options in their message form in order of the ifs above
 }
 
-function formatShortHand(player) {
+function formatShortHand(Player) {
 	var shortHand = '';
-	for (var i = 0; i < playerData[player].hand.length; i++); {
-		shortHand += symbolLookup[ playerData[player].hand[i] ][0];
-		shortHand += symbolLookup[ playerData[player].hand[i] ][1];
-		if (i !== playerData[player].hand.length - 1) {
+	for (var i=0; i < Player.hand.length; i++) {
+		shorthand = '';
+		shortHand += formatCard(Player.hand[i]);
+		if (i !== Player.hand.length - 1) {
 			shortHand += '  ';
 		}
 	}
@@ -70,17 +76,16 @@ function formatShortOptions(optionsList) {
 	return shortOptions; //in the form of 'Bet | Check | Fold' etc...
 }
 
-function formatLongHand(player) {
+function formatLongHand(Player) {
 	var longHand = '   ';
-	for (var i = 0; i < playerData[player].hand.length; i++) {
+	for (var i = 0; i < Player.hand.length; i++) {
 		longHand += '         ';
-		longHand += symbolLookup[ playerData[player].hand[i] ][0];
-		longHand += symbolLookup[ playerData[player].hand[i] ][1]	;	
+		longHand += formatCard(Player.hand[i]);
 	} //space at beginning?
 	return longHand; //in the form of '            K♣         Q♠         J♦         10♥         A♣'
 }
 
-function formatStatusBar(player) {
+function formatStatusBar(Player) {
 
 	var currentBetStatusMessage = 'CURRENT BET: ';
 	var yourWalletStatusMessage = 'YOUR WALLET: ';
@@ -89,14 +94,14 @@ function formatStatusBar(player) {
 	var statusSpaces = '';
 	
 	var statusNumberList = '';
-	statusNumberList += roomData.currentBet.toString() + roomData.pot.toString() + playerData[player].wallet.toString();
-	var statusSpacesNumber = Math.floor((27 /* <- size of each row*/ -(statusNumberList.length * 2 /* <- size of each letter*/)) / 4); /* <-number of status spaces needed (one for each option + 1*/ 
+	statusNumberList += Player.game.getHighestBet().toString() + Player.game.getPot().toString() + Player.wallet.toString();
+	var statusSpacesNumber = Math.floor((27 /* <- size of each row*/ -(statusNumberList.length * 2 /* <- size of each letter*/)) / 4); /* <-number of status spaces needed (one for each option + 1)*/ 
 	for (var i = 0; i < statusSpacesNumber; i++ ) { //make ^ formula generic?
 		statusSpaces += ' ';
 	}
 	
 	var statusBar = '';
-	statusBar = statusSpaces + currentBetStatusMessage + roomData.currentBet + statusSpaces + yourWalletStatusMessage + playerData[player].wallet + statusSpaces + potStatusMessage + roomData.pot;
+	statusBar = statusSpaces + currentBetStatusMessage + Player.game.getHighestBet() + statusSpaces + yourWalletStatusMessage + Player.wallet + statusSpaces + potStatusMessage + Player.game.getPot();
 
 	return statusBar; //in form of '     CURRENT BET: 15     YOUR WALLET: 15      POT: 15' with dynamic spaces
 }
@@ -125,4 +130,22 @@ function formatLongOptions(optionsList) {
 	}
 	
 	return longOptions; //in form of '     Bet     |     Check    |     Fold' with dynamic spaces
+}
+
+function formatCard(card) {
+	formattedCard = '';
+	
+	formattedCard += card.slice(0,-1)
+	
+	if(card.slice(-1) === 'h') {
+		formattedCard += '♥';
+	} else if(card.slice(-1) === 'd') {
+		formattedCard += '♦';
+	} else if(card.slice(-1) === 's') {
+		formattedCard += '♠';
+	} else if(card.slice(-1) === 'c') {
+		formattedCard += '♣';
+	}
+	
+	return formattedCard;
 }
