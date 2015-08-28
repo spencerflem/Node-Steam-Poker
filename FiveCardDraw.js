@@ -29,19 +29,8 @@ game.newRound();
 var iter = 0;
 var go = true;
 
-while (go) {
-	
-	//console.log(game.players[Object.keys(game.players)[game.turnPos]].id);
-	game.players["Carl"].allin();
-	//console.log(game.players[Object.keys(game.players)[game.turnPos]].id);
-	game.players["Lloyd"].call();
-	//console.log(game.players[Object.keys(game.players)[game.turnPos]].id);
-	game.players["Frank"].call();
-	
-	////console.log("After:  Lloyd:" + game.players.Lloyd.wallet + "   Frank:" + game.players.Frank.wallet + "   Carl:" + game.players.Carl.wallet + "\n");
-	iter++;
-	if (iter === 1) {
-		go = false;
-	}
-}
+game.getPlayerByID("Carl").allin();
+game.getPlayerByID("Frank").call();
+game.getPlayerByID("Lloyd").call();
+
 
