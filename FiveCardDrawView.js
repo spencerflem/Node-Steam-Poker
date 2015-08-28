@@ -7,8 +7,6 @@ function View() {
 }
 
 View.prototype.updateView = function(Player) { //unfinshed //Also, add if increase
-	console.log(Player);
-
 	var optionsList = formatOptionsList(Player); //Show side pots as Pot:300(20) <- side pots added together
 	var shortHand = formatShortHand(Player);
 	var shortOptions = formatShortOptions(optionsList);
@@ -20,11 +18,11 @@ View.prototype.updateView = function(Player) { //unfinshed //Also, add if increa
 	
 	message = shortHand + '\n' + shortOptions + '\n' + '———————————————————————————' + '\n' + '.' + '\n' + longHand + '\n' + '.' + '\n' + 
 	'———————————————————————————' + '\n' + statusBar + '\n' + '———————————————————————————' + '\n' + specialMessage + '\n' + longOptions;
-	
+	/*
 	console.log('////////////////////////////////////////////\n--------------------------------------------')
 	console.log(message);
 	console.log('--------------------------------------------\n////////////////////////////////////////////')
-	
+	*/
 	return message;
 };
 

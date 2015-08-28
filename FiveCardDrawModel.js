@@ -5,10 +5,9 @@ var view = new View();
 
 ////console.log -> winston.log
 
-//when is veiw invoked? Crashes!
-
 //ENSURE PLAYERS CAN CHECK OR BET AND RETURN ERROR SOMEHOW!!!!!!!!!
 //SEND ERRORS TO VIEW!
+//here or in input or both?
 
 module.exports = Game;
 
@@ -137,7 +136,7 @@ Game.prototype.showdown = function() {
 		}
 		//controll.allowPlayersToShowOrNot
 		//view.whateverBs
-		view.updateView();
+		//view.updateView();
 		this.newRound();
 	}
 };
