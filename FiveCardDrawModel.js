@@ -1,19 +1,23 @@
-//Thank you http://codereview.stackexchange.com/questions/71630/simple-poker-game I based much of this off of your code
+//Thank you http://codereview.stackexchange.com/questions/71630/simple-poker-model I based much of this off of your code
+//all view to be done with FiveCardDraw.js and returns?
 
-var View = require('./FiveCardDrawView.js'); //CHECK SPELLING VIEW VS VIEW
-var view = new View();
+//LOGGING! HOW?!
+//Send logger instance to all?
 
-////console.log -> winston.log
+
+// VALIDATE!!!!!
+
 
 //ENSURE PLAYERS CAN CHECK OR BET AND RETURN ERROR SOMEHOW!!!!!!!!!
 //SEND ERRORS TO VIEW!
 //here or in input or both?
 
-module.exports = Game;
+module.exports = Model;
 
 evaluator = require('poker-evaluator');
 
-function Game() {
+function Model(view) {
+	this.view = view;
 	this.deck = new Deck();
 	this.dealerPos = 0;
 	this.turnPos = 0;
@@ -21,7 +25,58 @@ function Game() {
 	this.awaitingPlayers = [];
 }
 
-Game.prototype.newRound = function() {
+Model.prototype.useInputs = function(inputs, id, message, type, chatter) {
+	var actingPlayer;
+	console.log(inputs + "----" + id + "-s-s-s-" + chatter);
+	if (typeof(chatter) === 'undefined') {
+		actingPlayer = this.getPlayerByID(id);
+	}
+	else {
+		actingPlayer = this.getPlayerByID(chatter);
+	}
+	console.log(actingPlayer);
+	if (typeof(actingPlayer) !== 'undefined') {
+		console.log(actingPlayer.id);
+		if(inputs.commands.length > 1) {
+			this.view.displayError('toomanyinputs');
+		}
+		else {
+			if (inputs.commands[0] === "CHECK") {
+				actingPlayer.check();
+			}
+			else if (inputs.commands[0] === "CALL") {
+				actingPlayer.call();
+			}
+			else if (inputs.commands[0] === "ALL IN") {
+				actingPlayer.allin();
+			}
+			else if (inputs.commands[0] === "FOLD") {
+				actingPlayer.fold();
+			}
+			else if (inputs.commands[0] === "HIT ME") {
+				actingPlayer.hitme();
+			}
+			else {
+				if (inputs.amounts.length > 1) {
+					this.view.displayError("screwynumbers");
+				}
+				else if (inputs.amounts.length < 1) {
+					this.view.displayError("screwynumbersv2");
+				}
+				else {
+					if (inputs.commands[0] === "RAISE") {
+						actingPlayer.raise(inputs.amounts[0]);
+					}
+					else if (inputs.commands[0] === "BET") {
+						actingPlayer.bet(inputs.amounts[0]);
+					}
+				}
+			}
+		}
+	}
+}
+
+Model.prototype.newRound = function() {
 	
 	allPlayers = this.players.concat(this.awaitingPlayers);
 	newPlayers = [];
@@ -44,26 +99,33 @@ Game.prototype.newRound = function() {
 	
 	for(var i =0; i < this.players.length; i++) {
 		this.players[i].reset();
+		for(var j=0; j<5; j++) {
+			this.players[i].hand[j] = this.deck.deal();
+		}
 	}
 
+	this.updateAllViews();
+	
+	this.requireAction();
+};
+
+Model.prototype.updateAllViews = function() {
 	for(var i =0; i < this.players.length; i++) {
 		for(var j=0; j<5; j++) {
 			this.players[i].hand[j] = this.deck.deal();
 		}
 		this.players[i].updateView();
 	}
-	
-	this.requireAction();
-};
+}
 
-Game.prototype.addPlayer = function(id) {
+Model.prototype.addPlayer = function(id) {
 	var newPlayer = new Player(id);
-	newPlayer.game = this;
+	newPlayer.model = this;
 	newPlayer.wallet = 100;
 	this.awaitingPlayers.push(newPlayer);
 };
 
-Game.prototype.getPlayerByID = function(id) {
+Model.prototype.getPlayerByID = function(id) {
 	Player = this.players.filter(function(Player) {
 		if(Player.id === id) {
 			return true;
@@ -74,20 +136,21 @@ Game.prototype.getPlayerByID = function(id) {
 	return Player;
 }
 
-Game.prototype.nextTurn = function() {
+Model.prototype.nextTurn = function() {
 	for(i=0; i < this.players.length; i++) {
 		newTurnPos = (this.turnPos + 1 + i) % this.players.length;
 		targetedPlayer = this.players[newTurnPos];
 		if(targetedPlayer.canPlay && targetedPlayer.mustAct) {
 			this.turnPos = newTurnPos;
+			this.updateAllViews();
 			return;
 		}
 	}
-	this.showdown();
+	this.showdown(); //YES OR NO ROUNDS :D
 	return;
 };
 
-Game.prototype.getHighestBet = function() {
+Model.prototype.getHighestBet = function() {
 	var highestBet = 0;
 	for(i=0; i < this.players.length;i++) {
 		if (this.players[i].amountBet > highestBet) {
@@ -97,7 +160,7 @@ Game.prototype.getHighestBet = function() {
 	return highestBet;
 };
 
-Game.prototype.getPot = function() {
+Model.prototype.getPot = function() {
 	var pot = 0;
 	for(i=0; i < this.players.length; i++) {
 		pot += this.players[i].amountBet;
@@ -105,13 +168,15 @@ Game.prototype.getPot = function() {
 	return pot;
 };
 
-Game.prototype.requireAction = function() {
+Model.prototype.requireAction = function() {
 	for(i=0; i < this.players.length;i++) {
 		this.players[i].mustAct = true;
 	}
 };
 
-Game.prototype.showdown = function() {
+//show or not before and then update canWin dependently
+
+Model.prototype.showdown = function() {
 	while (this.getPot() > 0) {
 		var highestAmount = -1;
 		var highestPlayer = null;
@@ -134,22 +199,23 @@ Game.prototype.showdown = function() {
 			highestPlayer.wallet += amountToGain;
 			currentPlayer.amountBet -= amountToGain;	
 		}
-		//controll.allowPlayersToShowOrNot
-		//view.whateverBs
-		//view.updateView();
-		this.newRound();
 	}
+	
+	//update view junk
+	this.newRound();
 };
 	
 function Player(id) {
 		this.id = id;
-		this.game = null;
+		this.model = null;
 		this.hand = [];
 		this.wallet = 0;
-		this.canPlay = true; //make function, add isFolded and isAllin?
+		this.canPlay = true; //make function, add isFolded and isAllin? or not?
 		this.mustAct = true;
+		this.mustDecide = false;
 		this.amountBet = 0;
 		this.canWin = true;
+		//HAVE REQUIRE ACTION CLONE FOR REQUIRE DECISION: VALIDATE ALL INPUTS
 }
 
 Player.prototype.getHandValue = function() {
@@ -157,12 +223,12 @@ Player.prototype.getHandValue = function() {
 };
 
 Player.prototype.isCurrentPlayer = function() {
-	if (this.game.players[this.game.turnPos] === this) { return true; }
+	if (this.model.players[this.model.turnPos] === this) { return true; }
 	else { return false; }
 };
 
 Player.prototype.getAmountToCall = function() {
-	return this.game.getHighestBet() - this.amountBet;
+	return this.model.getHighestBet() - this.amountBet;
 };
 
 Player.prototype.canAllin = function() {
@@ -171,22 +237,22 @@ Player.prototype.canAllin = function() {
 };
 
 Player.prototype.canBet = function() {
-	if(this.isCurrentPlayer() && this.game.getHighestBet() === 0) { return true; }
+	if(this.isCurrentPlayer() && this.model.getHighestBet() === 0) { return true; }
 	else { return false; }
 };
 
 Player.prototype.canCheck = function() {
-	if(this.isCurrentPlayer() && this.game.getHighestBet() === 0) { return true; }
+	if(this.isCurrentPlayer() && this.model.getHighestBet() === 0) { return true; }
 	else { return false; }
 };
 
 Player.prototype.canRaise = function() {
-	if(this.isCurrentPlayer() && this.wallet > this.getAmountToCall() && this.game.getHighestBet() > 0) { return true; }
+	if(this.isCurrentPlayer() && this.wallet > this.getAmountToCall() && this.model.getHighestBet() > 0) { return true; }
 	else { return false; }
 };
 
 Player.prototype.canCall = function() {
-	if(this.isCurrentPlayer() && this.wallet > this.getAmountToCall() && this.game.getHighestBet() > 0) { return true; }
+	if(this.isCurrentPlayer() && this.wallet > this.getAmountToCall() && this.model.getHighestBet() > 0) { return true; }
 	else { return false; }
 };
 
@@ -196,7 +262,7 @@ Player.prototype.canFold = function() {
 };
 
 Player.prototype.updateView = function() {
-	view.updateView(this);
+	this.model.view.updateView(this);
 };
 
 Player.prototype.reset = function() {
@@ -205,60 +271,68 @@ Player.prototype.reset = function() {
 	this.mustAct = true;
 	this.amountBet = 0;
 	this.canWin = true;
+	this.mustDecide = false;
 };
 
 Player.prototype.bet = function(amount) {
+	//this.model.view.acnowledgeAction();
+	console.log("BET");
 	this.wager(amount);
-	this.game.requireAction();
+	this.model.requireAction();
 	this.mustAct = false;
 	
-	this.game.nextTurn();
+	this.model.nextTurn();
 	this.updateView();
 };
 
 Player.prototype.check = function() {
+	console.log("CHECK");
 	this.mustAct = false;
 	
-	this.game.nextTurn();
+	this.model.nextTurn();
 	this.updateView();
 };
 
 Player.prototype.allin = function() {
-	if(this.wallet > this.game.getHighestBet()) {
-		this.game.requireAction();
+	console.log("ALLIN");
+	if(this.wallet > this.model.getHighestBet()) {
+		this.model.requireAction();
 	}
 	this.canPlay = false;
 	this.mustAxt = false;
 	this.wager(this.wallet);
 	
-	this.game.nextTurn();
+	this.model.nextTurn();
 	this.updateView();
 };
 
 Player.prototype.raise = function(amount) {
-	this.wager(this.game.getHighestBet() - this.amountBet + amount);
-	this.game.requireAction();
+	console.log("RAISE");
+	this.wager(this.model.getHighestBet() - this.amountBet + amount);
+	this.model.requireAction();
 	this.mustAct = false;
 	
-	this.game.nextTurn();// should this be where updateView/next turn goes?	Why not?
+	this.model.nextTurn();// should this be where updateView/next turn goes?	Why not?
 	this.updateView();
 
 };
 
 Player.prototype.call = function() {
+	console.log("CALL");
 	this.mustAct = false;
-	this.wager(this.game.getHighestBet() - this.amountBet);
+	this.wager(this.model.getHighestBet() - this.amountBet);
 	
-	this.game.nextTurn();
+	this.model.nextTurn();
 	this.updateView();
 };
 
 Player.prototype.fold = function() {
+	console.log("FOLD");
 	this.canPlay = false;
 	this.mustAct = false;
 	this.canWin = false;
 	
-	this.game.nextTurn();
+	this.model.nextTurn();
 	this.updateView();
 };
 
@@ -266,6 +340,18 @@ Player.prototype.wager = function(amount) {
 	this.wallet -= amount;
 	this.amountBet += amount;
 };
+
+Player.prototype.agree = function() {
+	//DO SOMETHING
+}
+
+Player.prototype.disagree = function() {
+	//DO SOMETHING
+}
+
+Player.prototype.hitme = function() {
+	this.wallet += 10;
+}
 
 function Deck() {
 	this.suits = ['d','h','s','c'];

@@ -1,12 +1,18 @@
 ﻿module.exports = View; //correct syntax?
 
 //TODO SIDEPOT
-//TODO VALIDATION
 
-function View() {
+function View(bot) {
+	this.bot = bot;
+}
+
+View.prototype.displayError = function(something) { //TODO!!
+	//if (PERTINANT DATA)
 }
 
 View.prototype.updateView = function(Player) { //unfinshed //Also, add if increase
+	//SEND!
+	//show other players chips?
 	var optionsList = formatOptionsList(Player); //Show side pots as Pot:300(20) <- side pots added together
 	var shortHand = formatShortHand(Player);
 	var shortOptions = formatShortOptions(optionsList);
@@ -18,11 +24,8 @@ View.prototype.updateView = function(Player) { //unfinshed //Also, add if increa
 	
 	message = shortHand + '\n' + shortOptions + '\n' + '———————————————————————————' + '\n' + '.' + '\n' + longHand + '\n' + '.' + '\n' + 
 	'———————————————————————————' + '\n' + statusBar + '\n' + '———————————————————————————' + '\n' + specialMessage + '\n' + longOptions;
-	/*
-	console.log('////////////////////////////////////////////\n--------------------------------------------')
-	console.log(message);
-	console.log('--------------------------------------------\n////////////////////////////////////////////')
-	*/
+	
+	this.bot.steamFriends.sendMessage(Player.id, message);
 	return message;
 };
 
@@ -32,7 +35,7 @@ function formatOptionsList(Player) {
 	var checkOptionMessage = 'Check';
 	var allInOptionMessage = 'All In (' + Player.wallet + ')';
 	var raiseOptionMessage = 'Raise (#)';
-	var callOptionMessage = 'Call (' + (Player.game.getHighestBet() - Player.amountBet) + ')';
+	var callOptionMessage = 'Call (' + (Player.model.getHighestBet() - Player.amountBet) + ')';
 	var foldOptionMessage = 'Fold';
 	//var yesOptionMessage = 'Yes';
 	//var noOptionMessage = 'No';
@@ -93,14 +96,14 @@ function formatStatusBar(Player) {
 	var statusSpaces = '';
 	
 	var statusNumberList = '';
-	statusNumberList += Player.game.getHighestBet().toString() + Player.game.getPot().toString() + Player.wallet.toString();
+	statusNumberList += Player.model.getHighestBet().toString() + Player.model.getPot().toString() + Player.wallet.toString();
 	var statusSpacesNumber = Math.floor((27 /* <- size of each row*/ -(statusNumberList.length * 2 /* <- size of each letter*/)) / 4); /* <-number of status spaces needed (one for each option + 1)*/ 
 	for (var i = 0; i < statusSpacesNumber; i++ ) { //make ^ formula generic?
 		statusSpaces += ' ';
 	}
 	
 	var statusBar = '';
-	statusBar = statusSpaces + currentBetStatusMessage + Player.game.getHighestBet() + statusSpaces + yourWalletStatusMessage + Player.wallet + statusSpaces + potStatusMessage + Player.game.getPot();
+	statusBar = statusSpaces + currentBetStatusMessage + Player.model.getHighestBet() + statusSpaces + yourWalletStatusMessage + Player.wallet + statusSpaces + potStatusMessage + Player.model.getPot();
 
 	return statusBar; //in form of '     CURRENT BET: 15     YOUR WALLET: 15      POT: 15' with dynamic spaces
 }
@@ -148,3 +151,4 @@ function formatCard(card) {
 	
 	return formattedCard;
 }
+

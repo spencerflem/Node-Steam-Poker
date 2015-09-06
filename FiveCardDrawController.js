@@ -1,15 +1,51 @@
-model = require('FiveCardDrawModel.js');
+module.exports = Controller;
 
-function extractNumbers(message) {
+function Controller(model) {
+	this.model = model;
+}
+
+Controller.prototype.evaluateInput = function(id, message, chatter, type) {
+	var inputs = findInputs(message);
+	this.model.useInputs(inputs, id, message, type, chatter);
+}
+
+function findInputs(message) {
+	var MESSAGE = message.toUpperCase();
+	var inputs = {};
+	
+	inputs.commands = [];
+	var commandList = [["CHECK","CHECK"], ["BET","BET"], ["RAISE","RAISE"], ["CALL","CALL"], ["ALL IN","ALL IN"], ["ALL-IN","ALL IN"], ["FOLD","FOLD"], ["HIT ME","HIT ME"]]
+	for (var i=0; i < commandList.length; i++) { //truly necessary for arrays? Enums?
+		if (MESSAGE.indexOf(commandList[i][0]) !== -1) {
+			console.log(commandList[i][0]);
+			inputs.commands.push(commandList[i][1]);
+		}
+	}
+	
+	inputs.amounts = [];
+	inputs.amounts = extractNumbers(MESSAGE);
+	
+	inputs.decisions = [];
+	var decisionList = [["YES",true], ["NO", false], ["YEP", true], ["NOPE", false], ["NAH", false], ["CERTAINLY", true]];
+	for (var i=0; i < decisionList.length; i++) {
+		if (MESSAGE.indexOf(decisionList[i][0]) !== -1) {
+			inputs.decisions.push(decisionList[i][1]);
+		}
+	}
+	
+	return inputs;
+}
+
+
+function extractNumbers(message) { //w/e fix l8r //old: /(-?\.?\d+\.?\d*)/g; or /[\d\-\.]*\d+/g <-- better?
 	var numbersRegex = /(-?\.?\d+\.?\d*)/g;
 	var commasRegex = /[,]/g; //_.pull works too
 	var numbers = [];
 	noCommasMessage = message.replace(commasRegex,'')
-	numbers = noCommasMessage.match(numbersRegex);
-	for (var h = 0; h < numbers.length; h++) {
+	numbers.concat(noCommasMessage.match(numbersRegex));
+	for (var h=0; h < numbers.length || 0; h++) {
 		numbers[h] = parseInt(numbers[h]);
 	}
-	console.log(numbers)
 	
 	// Copypasta from old bot incoming
 	
@@ -44,7 +80,5 @@ function extractNumbers(message) {
 		}
 	}
 	// </copypasta>
-	
-	console.log('NUMBERSNUMBERSNUMBERS---' + numbers);
 	return numbers; // Array should be in order of distance, right now is not due to copypasta
 }
